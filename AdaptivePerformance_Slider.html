@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefox Adaptive Performance Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Ubuntu', 'Helvetica Neue', sans-serif;
+            background: #1c1b22;
+            padding: 40px 20px;
+            color: #fbfbfe;
+        }
+
+        .settings-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #2b2a33;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+            padding: 32px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fbfbfe;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #cfcfd8;
+            line-height: 1.5;
+        }
+
+        .slider-container {
+            margin-bottom: 24px;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .slider-option {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 12px;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .slider-option:hover {
+            background: #38383d;
+        }
+
+        .slider-option.active {
+            background: rgba(0, 96, 223, 0.15);
+        }
+
+        .slider-option.active.performance-mode {
+            background: rgba(232, 54, 151, 0.15);
+        }
+
+        .slider-option.active.powersaving-mode {
+            background: rgba(18, 188, 0, 0.15);
+        }
+
+        .slider-option.center {
+            flex: 0.8;
+        }
+
+        .option-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: grayscale(100%);
+            opacity: 0.6;
+            transition: all 0.2s ease;
+        }
+
+        .slider-option.active .option-icon {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .option-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #cfcfd8;
+            margin-bottom: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .slider-option.active .option-title {
+            color: #0060df;
+        }
+
+        .slider-option.active.performance-mode .option-title {
+            color: #e83697;
+        }
+
+        .slider-option.active.powersaving-mode .option-title {
+            color: #12bc00;
+        }
+
+        .option-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #52525e;
+            color: #cfcfd8;
+            border-radius: 3px;
+            margin-top: 4px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .slider-option.active .option-badge {
+            opacity: 1;
+            background: #0060df;
+            color: white;
+        }
+
+        .slider-option.active.performance-mode .option-badge {
+            background: #e83697;
+            color: white;
+        }
+
+        .slider-option.active.powersaving-mode .option-badge {
+            background: #12bc00;
+            color: white;
+        }
+
+        .slider-track-container {
+            position: relative;
+            padding: 0 60px;
+        }
+
+        .slider-track {
+            position: relative;
+            height: 4px;
+            background: #52525e;
+            border-radius: 2px;
+        }
+
+        .slider-center-mark {
+            position: absolute;
+            width: 2px;
+            height: 12px;
+            background: #8f8f9d;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .slider-fill-left {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #e83697, rgba(232, 54, 151, 0.3));
+            border-radius: 2px 0 0 2px;
+            right: 50%;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        .slider-fill-right {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(18, 188, 0, 0.3), #12bc00);
+            border-radius: 0 2px 2px 0;
+            left: 50%;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #0060df;
+            border: 3px solid #2b2a33;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 96, 223, 0.4);
+            z-index: 2;
+        }
+
+        .slider-thumb.performance-mode {
+            background: #e83697;
+            box-shadow: 0 2px 8px rgba(232, 54, 151, 0.4);
+        }
+
+        .slider-thumb.powersaving-mode {
+            background: #12bc00;
+            box-shadow: 0 2px 8px rgba(18, 188, 0, 0.4);
+        }
+
+        .mode-description {
+            text-align: center;
+            margin-top: 24px;
+            padding: 16px;
+            background: #38383d;
+            border-radius: 6px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mode-description p {
+            font-size: 14px;
+            color: #cfcfd8;
+            line-height: 1.5;
+            max-width: 500px;
+        }
+
+        .info-section {
+            background: #38383d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 24px;
+            border-left: 3px solid #0060df;
+        }
+
+        .info-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fbfbfe;
+        }
+
+        .info-section p {
+            font-size: 13px;
+            color: #cfcfd8;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .info-section p:last-of-type {
+            margin-bottom: 12px;
+        }
+
+        .learn-more {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13px;
+            color: #0060df;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .learn-more:hover {
+            color: #0090ed;
+            text-decoration: underline;
+        }
+
+        .learn-more::after {
+            content: '→';
+            margin-left: 4px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .slider-track-container {
+                padding: 0 40px;
+            }
+            
+            .option-title {
+                font-size: 14px;
+            }
+        }
+
+        /* Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .settings-container {
+            animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="header">
+            <h1>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Adaptive Performance
+            </h1>
+            <p>Firefox intelligently optimizes speed and resource usage to meet your device and browsing needs. Take control of your performance priorities with these settings.</p>
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-labels">
+                <div class="slider-option performance-mode" id="performance-option" onclick="selectMode('performance')">
+                    <div class="option-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="option-title">Performance</div>
+                    <div class="option-badge">MAXIMUM SPEED</div>
+                </div>
+
+                <div class="slider-option center active" id="balanced-option" onclick="selectMode('balanced')">
+                    <div class="option-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 3V21M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-title">Balanced</div>
+                    <div class="option-badge">DEFAULT</div>
+                </div>
+
+                <div class="slider-option powersaving-mode" id="powersaving-option" onclick="selectMode('powersaving')">
+                    <div class="option-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="5" y="4" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 2H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M9 9H15V16H9V9Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="option-title">Power Saving</div>
+                    <div class="option-badge">ECO-FRIENDLY</div>
+                </div>
+            </div>
+
+            <div class="slider-track-container">
+                <div class="slider-track">
+                    <div class="slider-center-mark"></div>
+                    <div class="slider-fill-left" id="slider-fill-left"></div>
+                    <div class="slider-fill-right" id="slider-fill-right"></div>
+                    <div class="slider-thumb" id="slider-thumb"></div>
+                </div>
+            </div>
+
+            <div class="mode-description">
+                <p id="description-text">Firefox's intelligent default, automatically optimized to deliver great performance while managing resource usage efficiently.</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                About Adaptive Performance
+            </h3>
+            <p>
+                Firefox's Adaptive Performance gives you control over how the browser balances speed, battery life, and resource usage based on what matters most to you.
+            </p>
+            <p>
+                <strong>Performance mode</strong> maximizes speed by allocating more system resources—ideal for multiple tabs, heavy web applications, or media-rich content. Firefox responds faster, but uses more CPU and battery.
+            </p>
+            <p>
+                <strong>Power Saving mode</strong> reduces energy consumption by up to 15% through optimized background processes and intelligent resource management. This extends battery life on laptops and mobile devices. Firefox serves hundreds of millions of users, and these small efficiencies add up to meaningful global environmental impact.
+            </p>
+            <p>
+                <strong>Balanced mode</strong> is Firefox's intelligent default, automatically tuned to provide excellent performance while managing resources efficiently. This mode adapts to your device and browsing patterns.
+            </p>
+            <a href="#" class="learn-more">Learn more about performance settings</a>
+        </div>
+    </div>
+
+    <script>
+        const modes = {
+            performance: {
+                thumbPosition: 0,
+                fillLeft: 50,
+                fillRight: 0,
+                description: "Maximize speed and responsiveness. Ideal for demanding workflows with multiple tabs or heavy web applications.",
+                className: 'performance-mode'
+            },
+            balanced: {
+                thumbPosition: 50,
+                fillLeft: 0,
+                fillRight: 0,
+                description: "Firefox's intelligent default, automatically optimized to deliver great performance while managing resource usage efficiently.",
+                className: ''
+            },
+            powersaving: {
+                thumbPosition: 100,
+                fillLeft: 0,
+                fillRight: 50,
+                description: "Extend battery life and reduce energy consumption. Optimizes background processes and limits resource-intensive features.",
+                className: 'powersaving-mode'
+            }
+        };
+
+        function selectMode(mode) {
+            // Remove active class from all options
+            document.querySelectorAll('.slider-option').forEach(option => {
+                option.classList.remove('active');
+            });
+
+            // Add active class to selected option
+            document.getElementById(mode + '-option').classList.add('active');
+
+            // Update slider position and colors
+            const config = modes[mode];
+            const thumb = document.getElementById('slider-thumb');
+            
+            // Remove all mode classes from thumb
+            thumb.className = 'slider-thumb';
+            
+            // Add mode-specific class if needed
+            if (config.className) {
+                thumb.classList.add(config.className);
+            }
+            
+            thumb.style.left = config.thumbPosition + '%';
+            document.getElementById('slider-fill-left').style.width = config.fillLeft + '%';
+            document.getElementById('slider-fill-right').style.width = config.fillRight + '%';
+
+            // Update description
+            document.getElementById('description-text').textContent = config.description;
+
+            // In a real implementation, this would save the preference
+            console.log('Selected mode:', mode);
+        }
+
+        // Initialize slider position on load
+        selectMode('balanced');
+    </script>
+</body>
+</html>

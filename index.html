@@ -56,7 +56,6 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 20px;
-            position: relative;
         }
 
         .slider-option {
@@ -66,7 +65,6 @@
             padding: 12px;
             transition: all 0.2s ease;
             border-radius: 6px;
-            position: relative;
         }
 
         .slider-option:hover {
@@ -158,6 +156,7 @@
         .slider-track-container {
             position: relative;
             padding: 0 60px;
+            margin-bottom: 24px;
         }
 
         .slider-track {
@@ -165,6 +164,7 @@
             height: 4px;
             background: #52525e;
             border-radius: 2px;
+            cursor: pointer;
         }
 
         .slider-center-mark {
@@ -176,26 +176,31 @@
             top: 50%;
             transform: translate(-50%, -50%);
             z-index: 1;
+            pointer-events: none;
         }
 
         .slider-fill-left {
             position: absolute;
             height: 100%;
-            background: linear-gradient(90deg, #e83697, rgba(232, 54, 151, 0.3));
+            background: #e83697;
             border-radius: 2px 0 0 2px;
             right: 50%;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             width: 0%;
+            transform-origin: right;
+            pointer-events: none;
         }
 
         .slider-fill-right {
             position: absolute;
             height: 100%;
-            background: linear-gradient(90deg, rgba(18, 188, 0, 0.3), #12bc00);
+            background: #12bc00;
             border-radius: 0 2px 2px 0;
             left: 50%;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             width: 0%;
+            transform-origin: left;
+            pointer-events: none;
         }
 
         .slider-thumb {
@@ -208,9 +213,15 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 2px 8px rgba(0, 96, 223, 0.4);
             z-index: 2;
+            cursor: grab;
+        }
+
+        .slider-thumb:active {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.1);
         }
 
         .slider-thumb.performance-mode {
@@ -223,9 +234,12 @@
             box-shadow: 0 2px 8px rgba(18, 188, 0, 0.4);
         }
 
+        .slider-thumb.dragging {
+            transition: none;
+        }
+
         .mode-description {
             text-align: center;
-            margin-top: 24px;
             padding: 16px;
             background: #38383d;
             border-radius: 6px;
@@ -233,6 +247,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 16px;
         }
 
         .mode-description p {
@@ -242,30 +257,8 @@
             max-width: 500px;
         }
 
-        .info-section {
-            background: #38383d;
-            border-radius: 6px;
-            padding: 16px;
-            margin-top: 24px;
-            border-left: 3px solid #0060df;
-        }
-
-        .info-section h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #fbfbfe;
-        }
-
-        .info-section p {
-            font-size: 13px;
-            color: #cfcfd8;
-            line-height: 1.5;
-            margin-bottom: 12px;
-        }
-
-        .info-section p:last-of-type {
-            margin-bottom: 12px;
+        .learn-more-link {
+            text-align: center;
         }
 
         .learn-more {
@@ -299,7 +292,6 @@
             }
         }
 
-        /* Animation */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -314,10 +306,64 @@
         .settings-container {
             animation: slideIn 0.3s ease;
         }
+
+        /* About page styles */
+        .about-page {
+            display: none;
+        }
+
+        .about-page.visible {
+            display: block;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13px;
+            color: #0060df;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #0090ed;
+            text-decoration: underline;
+        }
+
+        .back-link::before {
+            content: '←';
+            margin-right: 4px;
+            font-size: 14px;
+        }
+
+        .about-content h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fbfbfe;
+        }
+
+        .about-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: #fbfbfe;
+        }
+
+        .about-content p {
+            font-size: 14px;
+            color: #cfcfd8;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
-    <div class="settings-container">
+    <!-- Main Settings Page -->
+    <div class="settings-container" id="settings-page">
         <div class="header">
             <h1>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -327,7 +373,7 @@
                 </svg>
                 Adaptive Performance
             </h1>
-            <p>Firefox intelligently optimizes speed and resource usage to meet your device and browsing needs. Take control of your performance priorities with these settings.</p>
+            <p>Choose how Firefox balances speed and resource usage based on your priorities.</p>
         </div>
 
         <div class="slider-container">
@@ -367,7 +413,7 @@
             </div>
 
             <div class="slider-track-container">
-                <div class="slider-track">
+                <div class="slider-track" id="slider-track">
                     <div class="slider-center-mark"></div>
                     <div class="slider-fill-left" id="slider-fill-left"></div>
                     <div class="slider-fill-right" id="slider-fill-right"></div>
@@ -378,29 +424,37 @@
             <div class="mode-description">
                 <p id="description-text">Firefox's intelligent default, automatically optimized to deliver great performance while managing resource usage efficiently.</p>
             </div>
-        </div>
 
-        <div class="info-section">
-            <h3>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: text-bottom; margin-right: 4px;">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                    <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                About Adaptive Performance
-            </h3>
+            <div class="learn-more-link">
+                <a href="#" class="learn-more" onclick="showAboutPage(event)">Learn more about Adaptive Performance</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div class="settings-container about-page" id="about-page">
+        <a href="#" class="back-link" onclick="showSettingsPage(event)">Back to settings</a>
+        
+        <div class="about-content">
+            <h2>About Adaptive Performance</h2>
             <p>
                 Firefox's Adaptive Performance gives you control over how the browser balances speed, battery life, and resource usage based on what matters most to you.
             </p>
+
+            <h3>Performance Mode</h3>
             <p>
-                <strong>Performance mode</strong> maximizes speed by allocating more system resources—ideal for multiple tabs, heavy web applications, or media-rich content. Firefox responds faster, but uses more CPU and battery.
+                Maximizes speed by allocating more system resources—ideal for multiple tabs, heavy web applications, or media-rich content. Firefox responds faster, but uses more CPU and battery.
             </p>
+
+            <h3>Power Saving Mode</h3>
             <p>
-                <strong>Power Saving mode</strong> reduces energy consumption by up to 15% through optimized background processes and intelligent resource management. This extends battery life on laptops and mobile devices. Firefox serves hundreds of millions of users, and these small efficiencies add up to meaningful global environmental impact.
+                Reduces energy consumption by up to 15% through optimized background processes and intelligent resource management. This extends battery life on laptops and mobile devices. Firefox serves hundreds of millions of users, and these small efficiencies add up to meaningful global environmental impact.
             </p>
+
+            <h3>Balanced Mode</h3>
             <p>
-                <strong>Balanced mode</strong> is Firefox's intelligent default, automatically tuned to provide excellent performance while managing resources efficiently. This mode adapts to your device and browsing patterns.
+                Firefox's intelligent default, automatically tuned to provide excellent performance while managing resources efficiently. This mode adapts to your device and browsing patterns, meeting you where you are without manual intervention.
             </p>
-            <a href="#" class="learn-more">Learn more about performance settings</a>
         </div>
     </div>
 
@@ -408,60 +462,154 @@
         const modes = {
             performance: {
                 thumbPosition: 0,
-                fillLeft: 50,
-                fillRight: 0,
+                fillLeftWidth: 50,
+                fillRightWidth: 0,
                 description: "Maximize speed and responsiveness. Ideal for demanding workflows with multiple tabs or heavy web applications.",
                 className: 'performance-mode'
             },
             balanced: {
                 thumbPosition: 50,
-                fillLeft: 0,
-                fillRight: 0,
+                fillLeftWidth: 0,
+                fillRightWidth: 0,
                 description: "Firefox's intelligent default, automatically optimized to deliver great performance while managing resource usage efficiently.",
                 className: ''
             },
             powersaving: {
                 thumbPosition: 100,
-                fillLeft: 0,
-                fillRight: 50,
+                fillLeftWidth: 0,
+                fillRightWidth: 50,
                 description: "Extend battery life and reduce energy consumption. Optimizes background processes and limits resource-intensive features.",
                 className: 'powersaving-mode'
             }
         };
 
+        let isDragging = false;
+        let currentMode = 'balanced';
+
         function selectMode(mode) {
-            // Remove active class from all options
+            currentMode = mode;
+            
             document.querySelectorAll('.slider-option').forEach(option => {
                 option.classList.remove('active');
             });
 
-            // Add active class to selected option
             document.getElementById(mode + '-option').classList.add('active');
 
-            // Update slider position and colors
             const config = modes[mode];
             const thumb = document.getElementById('slider-thumb');
+            const fillLeft = document.getElementById('slider-fill-left');
+            const fillRight = document.getElementById('slider-fill-right');
             
-            // Remove all mode classes from thumb
             thumb.className = 'slider-thumb';
             
-            // Add mode-specific class if needed
             if (config.className) {
                 thumb.classList.add(config.className);
             }
             
             thumb.style.left = config.thumbPosition + '%';
-            document.getElementById('slider-fill-left').style.width = config.fillLeft + '%';
-            document.getElementById('slider-fill-right').style.width = config.fillRight + '%';
+            fillLeft.style.width = config.fillLeftWidth + '%';
+            fillRight.style.width = config.fillRightWidth + '%';
 
-            // Update description
             document.getElementById('description-text').textContent = config.description;
-
-            // In a real implementation, this would save the preference
-            console.log('Selected mode:', mode);
         }
 
-        // Initialize slider position on load
+        function getModeFromPosition(percent) {
+            if (percent < 25) return 'performance';
+            if (percent > 75) return 'powersaving';
+            return 'balanced';
+        }
+
+        function updateSliderFromPosition(percent) {
+            const thumb = document.getElementById('slider-thumb');
+            const fillLeft = document.getElementById('slider-fill-left');
+            const fillRight = document.getElementById('slider-fill-right');
+            
+            thumb.style.left = percent + '%';
+            
+            // Fill FROM center outward
+            if (percent < 50) {
+                // Moving left from center: fill grows from center to the left
+                fillLeft.style.width = (50 - percent) + '%';
+                fillRight.style.width = '0%';
+            } else if (percent > 50) {
+                // Moving right from center: fill grows from center to the right
+                fillLeft.style.width = '0%';
+                fillRight.style.width = (percent - 50) + '%';
+            } else {
+                // At center: no fills
+                fillLeft.style.width = '0%';
+                fillRight.style.width = '0%';
+            }
+        }
+
+        // Dragging functionality
+        const thumb = document.getElementById('slider-thumb');
+        const track = document.getElementById('slider-track');
+        
+        thumb.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            thumb.classList.add('dragging');
+            e.preventDefault();
+        });
+
+        track.addEventListener('click', (e) => {
+            if (e.target === thumb) return;
+            
+            const rect = track.getBoundingClientRect();
+            const percent = ((e.clientX - rect.left) / rect.width) * 100;
+            const mode = getModeFromPosition(percent);
+            selectMode(mode);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const rect = track.getBoundingClientRect();
+            let percent = ((e.clientX - rect.left) / rect.width) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            
+            updateSliderFromPosition(percent);
+            
+            const newMode = getModeFromPosition(percent);
+            if (newMode !== currentMode) {
+                currentMode = newMode;
+                document.querySelectorAll('.slider-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+                document.getElementById(currentMode + '-option').classList.add('active');
+                
+                const thumb = document.getElementById('slider-thumb');
+                thumb.className = 'slider-thumb dragging';
+                if (modes[currentMode].className) {
+                    thumb.classList.add(modes[currentMode].className);
+                }
+                
+                document.getElementById('description-text').textContent = modes[currentMode].description;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                thumb.classList.remove('dragging');
+                selectMode(currentMode);
+            }
+        });
+
+        // Page navigation
+        function showAboutPage(e) {
+            e.preventDefault();
+            document.getElementById('settings-page').style.display = 'none';
+            document.getElementById('about-page').classList.add('visible');
+        }
+
+        function showSettingsPage(e) {
+            e.preventDefault();
+            document.getElementById('about-page').classList.remove('visible');
+            document.getElementById('settings-page').style.display = 'block';
+        }
+
+        // Initialize
         selectMode('balanced');
     </script>
 </body>
